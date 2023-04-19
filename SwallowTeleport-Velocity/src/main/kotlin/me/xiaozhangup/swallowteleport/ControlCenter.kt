@@ -38,7 +38,7 @@ object ControlCenter {
     fun Player.accept(from: Player) {
         if (has(from, this)) {
             this.sendMessage(ACCEPT)
-            from.sendMessage(miniMessage.deserialize("$prefix <color:#76b583>${this.username} 同意了你的传送请求</color>"))
+            from.sendMessage(miniMessage.deserialize("$prefix <color:#76b583>${this.username} 同意了你的传送请求,传送中...</color>"))
             this.orderTeleport(from)
             del(from, this)
 
@@ -66,6 +66,7 @@ object ControlCenter {
     fun Player.cancel(to: Player) {
         if (has(this, to)) {
             to.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>${this.username} 取消了刚刚的请求</color>"))
+            this.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>发送给 ${this.username} 的请求已取消</color>"))
             del(this, to)
         }
     }
