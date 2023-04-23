@@ -1,4 +1,4 @@
-package me.xiaozhangup.swallowteleport
+package me.xiaozhangup.swallowteleport.opj
 
 import me.xiaozhangup.swallowteleport.SwallowTeleport.gson
 

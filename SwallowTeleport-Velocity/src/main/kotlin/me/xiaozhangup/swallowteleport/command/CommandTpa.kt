@@ -1,21 +1,20 @@
 package me.xiaozhangup.swallowteleport.command
 
 import com.velocitypowered.api.proxy.Player
-import me.xiaozhangup.swallowteleport.ControlCenter.accept
-import me.xiaozhangup.swallowteleport.ControlCenter.cancel
-import me.xiaozhangup.swallowteleport.ControlCenter.deny
-import me.xiaozhangup.swallowteleport.ControlCenter.makeRequest
 import me.xiaozhangup.swallowteleport.SwallowTeleport.miniMessage
 import me.xiaozhangup.swallowteleport.SwallowTeleport.prefix
 import me.xiaozhangup.swallowteleport.SwallowTeleport.server
-import net.kyori.adventure.text.Component
+import me.xiaozhangup.swallowteleport.SwallowTeleport.teleport
+import me.xiaozhangup.swallowteleport.control.TpaControl.acceptTpa
+import me.xiaozhangup.swallowteleport.control.TpaControl.cancelTpa
+import me.xiaozhangup.swallowteleport.control.TpaControl.denyTpa
+import me.xiaozhangup.swallowteleport.control.TpaControl.makeTpaRequest
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
 import taboolib.common.platform.ProxyPlayer
 import taboolib.common.platform.SkipTo
 import taboolib.common.platform.command.PermissionDefault
 import taboolib.common.platform.command.command
-import taboolib.common.platform.command.player
 import taboolib.common.platform.function.submitAsync
 
 @SkipTo(LifeCycle.ENABLE)
@@ -26,6 +25,7 @@ object CommandTpa {
 
     @Awake(LifeCycle.ENABLE)
     fun regTpa() {
+        //tpa part
         command("tpa", permissionDefault = PermissionDefault.TRUE) {
             dynamic(optional = true) {
                 suggestion<ProxyPlayer>(uncheck = true) { _, _ ->
@@ -39,7 +39,7 @@ object CommandTpa {
                             if (to.get() == from) {
                                 from.sendMessage(NO_SELF)
                             } else {
-                                from.makeRequest(to.get())
+                                from.makeTpaRequest(to.get())
                             }
                         } else {
                             from.sendMessage(NO_PLAYER)
@@ -49,51 +49,83 @@ object CommandTpa {
             }
 
             execute<Player> { sender, _, _ ->
-                submitAsync {
-                    sender.sendMessage(miniMessage.deserialize("<br><br><br>"))
-                    sender.sendMessage(miniMessage.deserialize(" <color:#a1caf1><b>玩家传送功能使用方法:</b></color><newline>"))
-                    sender.sendMessage(miniMessage.deserialize("  <white>/tpa [玩家名]<white> <dark_gray>-</dark_gray> <gray>向某玩家发出传送请求</gray>"))
-                    sender.sendMessage(miniMessage.deserialize("  <white>/tpyes [玩家名]<white> <dark_gray>-</dark_gray> <gray>同意某人的请求,通常不必手动输入</gray>"))
-                    sender.sendMessage(miniMessage.deserialize("  <white>/tpno [玩家名]<white> <dark_gray>-</dark_gray> <gray>拒绝某人的请求,通常不必手动输入</gray>"))
-                    sender.sendMessage(miniMessage.deserialize("<br>"))
-                }
+                sender.sendHelp()
             }
         }
-
-        command("tpyes", aliases = listOf("tpaccept"), permissionDefault = PermissionDefault.TRUE) {
+        command("tpayes", aliases = listOf("tpaccept"), permissionDefault = PermissionDefault.TRUE) {
             dynamic {
                 execute<Player> { sender, _, argument ->
                     submitAsync {
                         server.getPlayer(argument).ifPresent {
-                            sender.accept(it)
+                            sender.acceptTpa(it)
                         }
                     }
                 }
             }
         }
-
-        command("tpno", aliases = listOf("tpdeny"), permissionDefault = PermissionDefault.TRUE) {
+        command("tpano", aliases = listOf("tpdeny"), permissionDefault = PermissionDefault.TRUE) {
             dynamic {
                 execute<Player> { sender, _, argument ->
                     submitAsync {
                         server.getPlayer(argument).ifPresent {
-                            sender.deny(it)
+                            sender.denyTpa(it)
                         }
                     }
                 }
             }
         }
 
-        command("tpcancel", permissionDefault = PermissionDefault.TRUE) {
+        command("tpacancel", permissionDefault = PermissionDefault.TRUE) {
             dynamic {
-                execute<Player> {sender, _, argument ->
+                execute<Player> { sender, _, argument ->
                     submitAsync {
                         server.getPlayer(argument).ifPresent {
-                            sender.cancel(it)
+                            sender.cancelTpa(it)
                         }
                     }
                 }
             }
+        }
+
+        // TODO: tph part
+
+
+        //这个还没来得及测试
+        command("tp", permissionDefault = PermissionDefault.FALSE) {
+            dynamic(optional = true) {
+                suggestion<ProxyPlayer>(uncheck = true) { _, _ ->
+                    server.allPlayers.map { it.username }
+                }
+                execute<Player> { sender, _, argument ->
+                    if (sender.hasPermission("swallowteleport.tp")) {
+                        server.getPlayer(argument)?.let {
+                            it.ifPresent { to ->
+                                sender.teleport(to)
+                            }
+                        }
+                    } else {
+                        sender.sendHelp()
+                    }
+                }
+            }
+
+            execute<Player> { sender, _, _ ->
+                sender.sendHelp()
+            }
+        }
+    }
+
+    private fun Player.sendHelp() {
+        submitAsync {
+            sendMessage(miniMessage.deserialize("<br><br><br>"))
+            sendMessage(miniMessage.deserialize(" <color:#a1caf1><b>玩家传送功能使用方法:</b></color><newline>"))
+            sendMessage(miniMessage.deserialize("  <white>/tpa [玩家名]<white> <dark_gray>-</dark_gray> <gray>请求传送到某玩家</gray>"))
+            sendMessage(miniMessage.deserialize("  <white>/tpayes [玩家名]<white> <dark_gray>-</dark_gray> <gray>同意某人的请求,通常不必手动输入</gray>"))
+            sendMessage(miniMessage.deserialize("  <white>/tpano [玩家名]<white> <dark_gray>-</dark_gray> <gray>拒绝某人的请求,通常不必手动输入</gray><br>"))
+            sendMessage(miniMessage.deserialize("  <white>/tph [玩家名]<white> <dark_gray>-</dark_gray> <gray>请求某玩家传送来</gray>"))
+            sendMessage(miniMessage.deserialize("  <white>/tphyes [玩家名]<white> <dark_gray>-</dark_gray> <gray>同意某人的请求,通常不必手动输入</gray>"))
+            sendMessage(miniMessage.deserialize("  <white>/tphno [玩家名]<white> <dark_gray>-</dark_gray> <gray>拒绝某人的请求,通常不必手动输入</gray>"))
+            sendMessage(miniMessage.deserialize("<br>"))
         }
     }
 }

@@ -5,11 +5,12 @@ import com.velocitypowered.api.proxy.Player
 import com.velocitypowered.api.proxy.ProxyServer
 import com.velocitypowered.api.proxy.messages.ChannelIdentifier
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier
+import me.xiaozhangup.swallowteleport.control.ControlCenter
+import me.xiaozhangup.swallowteleport.opj.RequestMessage
 import net.kyori.adventure.text.minimessage.MiniMessage
 import taboolib.common.env.RuntimeDependencies
 import taboolib.common.env.RuntimeDependency
 import taboolib.common.platform.Plugin
-import taboolib.common.platform.function.info
 import taboolib.platform.VelocityPlugin
 
 @RuntimeDependencies(
@@ -21,8 +22,11 @@ object SwallowTeleport : Plugin() {
         private set
     lateinit var server: ProxyServer
         private set
+
     val miniMessage: MiniMessage by lazy { MiniMessage.miniMessage() }
+    val control: ControlCenter by lazy { ControlCenter }
     val gson: Gson by lazy { Gson() }
+
     const val prefix: String = "<dark_gray>[<color:#a1caf1>传送</color>]</dark_gray>"
     val swallowRequest: ChannelIdentifier = MinecraftChannelIdentifier.from("swallow:request")
 
@@ -33,8 +37,16 @@ object SwallowTeleport : Plugin() {
         plugin.server.channelRegistrar.register(swallowRequest)
     }
 
-    //在被请求(to) 的玩家执行!
-    fun Player.orderTeleport(from: Player) {
-        sendPluginMessage(swallowRequest, RequestMessage(from.username, this.username).toJson().toByteArray())
+    fun Player.teleport(to: Player) {
+        val from = this
+        sendPluginMessage(swallowRequest, RequestMessage(from.username, to.username).toJson().toByteArray())
+        to.currentServer.ifPresent { server ->
+            from.currentServer.ifPresent { fs ->
+                if (fs != server) {
+                    val connectionRequestBuilder = from.createConnectionRequest(server.server)
+                    connectionRequestBuilder.connect()
+                }
+            }
+        }
     }
 }
