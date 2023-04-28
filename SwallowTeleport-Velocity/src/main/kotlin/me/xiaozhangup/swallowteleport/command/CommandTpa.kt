@@ -9,6 +9,10 @@ import me.xiaozhangup.swallowteleport.control.TpaControl.acceptTpa
 import me.xiaozhangup.swallowteleport.control.TpaControl.cancelTpa
 import me.xiaozhangup.swallowteleport.control.TpaControl.denyTpa
 import me.xiaozhangup.swallowteleport.control.TpaControl.makeTpaRequest
+import me.xiaozhangup.swallowteleport.control.TphControl.acceptTph
+import me.xiaozhangup.swallowteleport.control.TphControl.cancelTph
+import me.xiaozhangup.swallowteleport.control.TphControl.denyTph
+import me.xiaozhangup.swallowteleport.control.TphControl.makeTphRequest
 import taboolib.common.LifeCycle
 import taboolib.common.platform.Awake
 import taboolib.common.platform.ProxyPlayer
@@ -52,7 +56,7 @@ object CommandTpa {
                 sender.sendHelp()
             }
         }
-        command("tpayes", aliases = listOf("tpaccept"), permissionDefault = PermissionDefault.TRUE) {
+        command("tpayes", permissionDefault = PermissionDefault.TRUE) {
             dynamic {
                 execute<Player> { sender, _, argument ->
                     submitAsync {
@@ -63,7 +67,7 @@ object CommandTpa {
                 }
             }
         }
-        command("tpano", aliases = listOf("tpdeny"), permissionDefault = PermissionDefault.TRUE) {
+        command("tpano", permissionDefault = PermissionDefault.TRUE) {
             dynamic {
                 execute<Player> { sender, _, argument ->
                     submitAsync {
@@ -74,7 +78,6 @@ object CommandTpa {
                 }
             }
         }
-
         command("tpacancel", permissionDefault = PermissionDefault.TRUE) {
             dynamic {
                 execute<Player> { sender, _, argument ->
@@ -88,6 +91,65 @@ object CommandTpa {
         }
 
         // TODO: tph part
+        command("tph", permissionDefault = PermissionDefault.TRUE) {
+            dynamic(optional = true) {
+                suggestion<ProxyPlayer>(uncheck = true) { _, _ ->
+                    server.allPlayers.map { it.username }
+                }
+                execute<Player> { from, _, argument ->
+                    submitAsync {
+                        val to = server.getPlayer(argument)
+
+                        if (to.isPresent) {
+                            if (to.get() == from) {
+                                from.sendMessage(NO_SELF)
+                            } else {
+                                from.makeTphRequest(to.get())
+                            }
+                        } else {
+                            from.sendMessage(NO_PLAYER)
+                        }
+                    }
+                }
+            }
+
+            execute<Player> { sender, _, _ ->
+                sender.sendHelp()
+            }
+        }
+        command("tphyes", permissionDefault = PermissionDefault.TRUE) {
+            dynamic {
+                execute<Player> { sender, _, argument ->
+                    submitAsync {
+                        server.getPlayer(argument).ifPresent {
+                            sender.acceptTph(it)
+                        }
+                    }
+                }
+            }
+        }
+        command("tphno", permissionDefault = PermissionDefault.TRUE) {
+            dynamic {
+                execute<Player> { sender, _, argument ->
+                    submitAsync {
+                        server.getPlayer(argument).ifPresent {
+                            sender.denyTph(it)
+                        }
+                    }
+                }
+            }
+        }
+        command("tphcancel", permissionDefault = PermissionDefault.TRUE) {
+            dynamic {
+                execute<Player> { sender, _, argument ->
+                    submitAsync {
+                        server.getPlayer(argument).ifPresent {
+                            sender.cancelTph(it)
+                        }
+                    }
+                }
+            }
+        }
 
 
         //这个还没来得及测试

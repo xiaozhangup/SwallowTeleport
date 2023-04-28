@@ -39,7 +39,12 @@ object SwallowTeleport : Plugin() {
 
     fun Player.teleport(to: Player) {
         val from = this
-        sendPluginMessage(swallowRequest, RequestMessage(from.username, to.username).toJson().toByteArray())
+        to.currentServer.ifPresent {
+            it.sendPluginMessage(
+                swallowRequest,
+                RequestMessage(from.username, to.username).toJson().toByteArray()
+            )
+        }
         to.currentServer.ifPresent { server ->
             from.currentServer.ifPresent { fs ->
                 if (fs != server) {

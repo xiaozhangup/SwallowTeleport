@@ -55,7 +55,7 @@ object TpaControl {
     fun Player.cancelTpa(to: Player) {
         if (control.has(this, to, TeleportType.TPA)) {
             to.sendMessage(SwallowTeleport.miniMessage.deserialize("${SwallowTeleport.prefix} <color:#e0edfa>${this.username} 取消了刚刚的请求</color>"))
-            this.sendMessage(SwallowTeleport.miniMessage.deserialize("${SwallowTeleport.prefix} <color:#e0edfa>发送给 ${this.username} 的请求已取消</color>"))
+            this.sendMessage(SwallowTeleport.miniMessage.deserialize("${SwallowTeleport.prefix} <color:#e0edfa>发送给 ${to.username} 的请求已取消</color>"))
             control.del(this, to, TeleportType.TPA)
         }
     }
