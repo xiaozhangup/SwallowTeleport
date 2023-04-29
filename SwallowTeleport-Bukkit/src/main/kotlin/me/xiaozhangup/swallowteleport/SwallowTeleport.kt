@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import org.bukkit.Bukkit
 import org.bukkit.event.player.PlayerJoinEvent
 import taboolib.common.platform.Plugin
+import taboolib.common.platform.event.EventPriority
 import taboolib.common.platform.event.SubscribeEvent
 import taboolib.platform.BukkitPlugin
 
@@ -19,7 +20,7 @@ object SwallowTeleport : Plugin() {
         plugin.server.messenger.registerIncomingPluginChannel(plugin, "swallow:request", MessagerListener)
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun e(e: PlayerJoinEvent) {
         for (que in cache) {
             if (que.from == e.player.name) {

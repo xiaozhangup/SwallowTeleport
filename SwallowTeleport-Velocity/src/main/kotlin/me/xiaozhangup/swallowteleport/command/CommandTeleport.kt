@@ -22,7 +22,7 @@ import taboolib.common.platform.command.command
 import taboolib.common.platform.function.submitAsync
 
 @SkipTo(LifeCycle.ENABLE)
-object CommandTpa {
+object CommandTeleport {
 
     private val NO_PLAYER = miniMessage.deserialize("$prefix <color:#e0edfa>并没有找到这位玩家!</color>")
     private val NO_SELF = miniMessage.deserialize("$prefix <color:#e0edfa>你不能自己传送到自己!</color>")
@@ -151,9 +151,7 @@ object CommandTpa {
             }
         }
 
-
-        //这个还没来得及测试
-        command("tp", permissionDefault = PermissionDefault.FALSE) {
+        command("vtp", permissionDefault = PermissionDefault.FALSE) {
             dynamic(optional = true) {
                 suggestion<ProxyPlayer>(uncheck = true) { _, _ ->
                     server.allPlayers.map { it.username }
@@ -167,6 +165,24 @@ object CommandTpa {
                         }
                     } else {
                         sender.sendHelp()
+                    }
+                }
+
+                dynamic(optional = true) {
+                    suggestion<ProxyPlayer>(uncheck = true) { _, _ ->
+                        server.allPlayers.map { it.username }
+                    }
+                    execute<Player> { sender, com, to ->
+                        if (sender.hasPermission("swallowteleport.tp")) {
+                            server.getPlayer(to).ifPresent { tp ->
+                                tp.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>你被强制传送到 ${tp.username}!</color>"))
+                                server.getPlayer(com.args()[0]).ifPresent { fp ->
+                                    fp.teleport(tp)
+                                }
+                            }
+                        } else {
+                            sender.sendHelp()
+                        }
                     }
                 }
             }
