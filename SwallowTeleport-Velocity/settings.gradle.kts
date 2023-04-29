@@ -1,1 +1,1 @@
-rootProject.name="SwallowTeleport-Velocity"
+rootProject.name = "SwallowTeleport-Velocity"

@@ -35,7 +35,7 @@ object CommandTeleport {
                 suggestion<ProxyPlayer>(uncheck = true) { _, _ ->
                     server.allPlayers.map { it.username }
                 }
-                execute<Player> {from, _, argument ->
+                execute<Player> { from, _, argument ->
                     submitAsync {
                         val to = server.getPlayer(argument)
 
@@ -90,7 +90,7 @@ object CommandTeleport {
             }
         }
 
-        // TODO: tph part
+        //tph part
         command("tph", permissionDefault = PermissionDefault.TRUE) {
             dynamic(optional = true) {
                 suggestion<ProxyPlayer>(uncheck = true) { _, _ ->
