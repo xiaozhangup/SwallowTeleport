@@ -175,8 +175,8 @@ object CommandTeleport {
                     execute<Player> { sender, com, to ->
                         if (sender.hasPermission("swallowteleport.tp")) {
                             server.getPlayer(to).ifPresent { tp ->
-                                tp.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>你被强制传送到 ${tp.username}!</color>"))
                                 server.getPlayer(com.args()[0]).ifPresent { fp ->
+                                    fp.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>你被强制传送到 ${tp.username}!</color>"))
                                     fp.teleport(tp)
                                 }
                             }
