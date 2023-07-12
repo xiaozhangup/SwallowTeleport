@@ -10,13 +10,11 @@ import taboolib.platform.BukkitPlugin
 
 object SwallowTeleport : Plugin() {
 
-    lateinit var plugin: BukkitPlugin
-        private set
+    private val plugin by lazy { BukkitPlugin.getInstance() }
     val gson: Gson by lazy { Gson() }
     val cache: MutableList<RequestMessage> = mutableListOf()
 
     override fun onEnable() {
-        plugin = BukkitPlugin.getInstance()
         plugin.server.messenger.registerIncomingPluginChannel(plugin, "swallow:request", MessagerListener)
     }
 
@@ -25,7 +23,9 @@ object SwallowTeleport : Plugin() {
         for (que in cache) {
             if (que.from == e.player.name) {
                 Bukkit.getPlayer(que.to)?.let {
-                    e.player.teleport(it)
+                    e.player.teleportAsync(it.location.clone()).thenAccept {
+                        e.player.freezeTeleport(10L)
+                    }
                 }
             }
         }

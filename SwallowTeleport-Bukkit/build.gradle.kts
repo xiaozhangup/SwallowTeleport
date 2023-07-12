@@ -16,9 +16,13 @@ taboolib {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://papermc.io/repo/repository/maven-public/")
+    }
 }
 
 dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.19.2-R0.1-SNAPSHOT")
     compileOnly("ink.ptms:nms-all:1.0.0")
     compileOnly("ink.ptms.core:v11902:11902-minimize:mapped")
     compileOnly("ink.ptms.core:v11902:11902-minimize:universal")
@@ -33,12 +37,12 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "16"
+        jvmTarget = "17"
         freeCompilerArgs = listOf("-Xjvm-default=all")
     }
 }
 
 configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_16
-    targetCompatibility = JavaVersion.VERSION_16
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
