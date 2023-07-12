@@ -33,7 +33,7 @@ object TphControl {
             if (ControlCenter.has(this, to, TeleportType.TPHERE)) {
                 ControlCenter.del(this, to, TeleportType.TPHERE)
                 this.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>你发给 ${to.username} 的请求已过期</color>"))
-                to.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>${this.username} 发给你的请求已过期</color"))
+                to.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>${this.username} 发给你的请求已过期</color>"))
             }
         }.delay(3L, TimeUnit.MINUTES).schedule()
     }
@@ -64,6 +64,8 @@ object TphControl {
             to.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>${this.username} 取消了刚刚的请求</color>"))
             this.sendMessage(miniMessage.deserialize("$prefix <color:#e0edfa>发送给 ${to.username} 的请求已取消</color>"))
             ControlCenter.del(this, to, TeleportType.TPHERE)
+        } else {
+            this.sendMessage(miniMessage.deserialize("$prefix <color:#f07f5e>你没有待处理的传送请求</color>"))
         }
     }
 
